@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Connexion à la base de données SQLite
 def get_cycle_data(cycle_id):
-    conn = sqlite3.connect('Predictions.db')  
+    conn = sqlite3.connect('/app/data/Predictions.db')  
     cursor = conn.cursor()
     query = "SELECT predictions, df_profile_ML FROM table_predication WHERE rowid = ?"
     cursor.execute(query, (cycle_id,))
