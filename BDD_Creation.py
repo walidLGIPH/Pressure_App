@@ -8,22 +8,16 @@ from sklearn.metrics import mean_squared_error
 import pickle
 import sqlite3
 
-
-#Transfore le résultat en utilisant la fonction arctrangente
-def transform_prediction (sin,cos):
-    resultat=np.arctan2(sin, cos) * (24 / (2 * np.pi))
-    return(resultat)
 loaded_df=pd.read_csv("2205_Cycle.csv")
 # Charger les modèles depuis le fichier pickle
 with open("model_rf.pkl", "rb") as f:
     loaded_model = pickle.load(f)
 
-X=np.array(loaded_df[['df_FS1_10HZ_ML', 'df_PS2_100HZ_ML']])
+X=np.array(loaded_df[['df_FS1_10HZ_ML', 'df_PS2_100HZ_ML', 'sin_time', 'cos_time']])
 #Normalisation des données 
 scaler = MinMaxScaler()  # Vous pouvez aussi utiliser StandardScaler pour la standardisation 
 X_scaled = scaler.fit_transform(X)
-profile_ML_pred=loaded_model.predict(X_scaled)
-predicted_profile=transform_prediction(profile_ML_pred[:, 0],profile_ML_pred[:, 0])
+predicted_profile=loaded_model.predict(X_scaled)
 loaded_df['predictions']=predicted_profile
 print(loaded_df)
 
@@ -38,7 +32,9 @@ table_name = "table_predication"
 # Construire la requête CREATE TABLE en utilisant uniquement les noms de colonnes
 columns = loaded_df.columns
 columns_query = ", ".join([f"{col}" for col in columns])
-create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_query})"
+cursor.execute('DROP TABLE IF EXISTS table_predication')
+
+create_table_query = f"CREATE TABLE {table_name} ({columns_query})"
 
 # Exécuter la requête
 cursor.execute(create_table_query)
